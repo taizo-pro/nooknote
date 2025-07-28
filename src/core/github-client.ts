@@ -365,7 +365,8 @@ export class GitHubClient implements GitHubDiscussionsClient {
       };
     }
 
-    if (error.code === 'ENOTFOUND' || error.code === 'ECONNREFUSED') {
+    if ((error.code && (error.code === 'ENOTFOUND' || error.code === 'ECONNREFUSED')) || 
+        (error.status && (error.status === 'ENOTFOUND' || error.status === 'ECONNREFUSED'))) {
       return {
         type: ErrorType.NETWORK_ERROR,
         message: 'Network connection failed',
