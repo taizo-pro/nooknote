@@ -20,54 +20,31 @@ A powerful command-line tool for interacting with GitHub Discussions without ope
 
 ## Installation
 
-#### Option 1: Direct Usage (Current Setup)
-Since the project is already built, you can use it directly:
+### Via npm (Recommended)
 
-```bash
-# Navigate to the project directory
-cd /path/to/nooknote
-
-# Run the CLI tool
-node dist/cli/index.js --help
-```
-
-#### Option 2: Global Installation (Recommended)
-Link the CLI tool globally for easier access:
-
-```bash
-# In the project directory
-npm link
-
-# Now you can use it from anywhere
-gh-discussions --help
-```
-
-#### Option 3: From Source (Development)
-If you want to modify or contribute:
-
-```bash
-git clone <your-repo-url>
-cd github-discussions-cli
-npm install
-npm run build  # This creates the dist/ folder
-npm link
-```
-
-> **Note**: The `dist/` folder is automatically generated during build and is excluded from git via `.gitignore`.
-
-#### Option 4: Via npm (Recommended for Users)
 Install globally from npm registry:
 
 ```bash
 npm install -g @taizo-pro/github-discussions-cli
 ```
 
+After installation, the `gh-discussions` command will be available globally in your terminal.
+
+### Alternative: npx (No Installation Required)
+
+You can also use the tool without installing it globally:
+
+```bash
+npx @taizo-pro/github-discussions-cli --help
+```
+
+> **Note**: Replace `gh-discussions` with `npx @taizo-pro/github-discussions-cli` in all usage examples if using npx.
+
 ## Quick Start
 
-1. **Build and link the CLI globally** (in the project directory):
+1. **Install the CLI tool**:
    ```bash
-   npm run build  # Build TypeScript to JavaScript
-   npm link       # Make command available globally
+   npm install -g @taizo-pro/github-discussions-cli
    ```
 
 2. **Set up authentication**:
@@ -155,11 +132,7 @@ Before using the CLI, you need to create a GitHub Personal Access Token with the
 Run the interactive configuration setup:
 
 ```bash
-# If installed globally
 gh-discussions config
-
-# If running from source
-node dist/cli/index.js config
 ```
 
 The setup will prompt you for:
@@ -242,7 +215,7 @@ Repository permissions:
 
 ## Usage
 
-> **Note**: If you haven't installed globally, replace `gh-discussions` with `node dist/cli/index.js` in all examples below.
+> **Note**: If using npx instead of global installation, replace `gh-discussions` with `npx @taizo-pro/github-discussions-cli` in all examples below.
 
 ### List Discussions
 ```bash
@@ -378,27 +351,29 @@ The tool stores configuration in `~/.github-discussions/`:
 
 ## Development
 
+For developers who want to contribute to this project:
+
 ### Prerequisites
 - Node.js 18+
 - TypeScript
-- npm or yarn
+- npm
 
-### Setup
+### Setup for Development
 ```bash
-git clone https://github.com/your-username/github-discussions-cli.git
-cd github-discussions-cli
+git clone https://github.com/taizo-pro/nooknote.git
+cd nooknote
 npm install
 ```
 
 ### Development Commands
 ```bash
-# Build the project (creates dist/ folder)
+# Build the project
 npm run build
 
 # Build and watch for changes during development
 npm run build:watch
 
-# Run in development mode (uses ts-node, no build required)
+# Run in development mode (uses ts-node)
 npm run dev
 
 # Run tests
@@ -414,12 +389,6 @@ npm run lint
 npm run format
 ```
 
-### Build Process
-- **Source**: TypeScript files in `src/`
-- **Output**: JavaScript files in `dist/` (auto-generated)
-- **Git**: `dist/` folder is excluded via `.gitignore`
-- **Distribution**: Only built files are needed for execution
-
 ### Testing
 ```bash
 # Run all tests
@@ -431,6 +400,8 @@ npm run test -- --coverage
 # Run specific test file
 npm test github-client.test.ts
 ```
+
+> **Note**: This section is for contributors and developers. End users should install via npm as described in the Installation section.
 
 
 ## Command Reference
