@@ -5,13 +5,18 @@ A powerful command-line tool for interacting with GitHub Discussions without ope
 ## Features
 
 - 📋 List discussions in any repository
+- 🔍 Search discussions with text matching and filters
 - 👀 View discussion details and comments
 - 💬 Post comments to discussions
 - ✨ Create new discussions
+- 📊 Repository statistics and analytics
+- 🏷️ Filter by category, author, or comment count
 - ⚙️ Configurable settings and authentication
 - 🎨 Multiple output formats (table, JSON, markdown)
 - 🚀 Fast and lightweight CLI interface
 - 🔒 Secure token management
+- ⚡ Enhanced error handling with retry logic
+- 🎯 Visual feedback with spinners and progress bars
 
 ## Installation
 
@@ -78,6 +83,15 @@ npm install -g @taizo-pro/github-discussions-cli
 4. **View a specific discussion**:
    ```bash
    gh-discussions show 1 microsoft/vscode
+   ```
+
+5. **Try the new search and statistics features**:
+   ```bash
+   # Search for discussions about bugs
+   gh-discussions search "bug" microsoft/vscode
+   
+   # View repository statistics
+   gh-discussions stats microsoft/vscode
    ```
 
 ## Setup
@@ -241,6 +255,21 @@ gh-discussions list owner/repository
 # Limit number of results
 gh-discussions list --first 10
 
+# Filter by category
+gh-discussions list --category General
+
+# Filter by author
+gh-discussions list --author username
+
+# Show only discussions with comments
+gh-discussions list --has-comments
+
+# Show only discussions without comments
+gh-discussions list --no-comments
+
+# Sort by creation date (ascending)
+gh-discussions list --sort created --order asc
+
 # Output as JSON
 gh-discussions list --format json
 
@@ -267,6 +296,45 @@ gh-discussions comment 42 --editor
 
 # Comment in specific repository
 gh-discussions comment 42 "Thanks!" owner/repository
+```
+
+### Search Discussions
+```bash
+# Search for discussions containing "bug"
+gh-discussions search "bug"
+
+# Search in specific repository
+gh-discussions search "feature request" owner/repository
+
+# Search only in titles
+gh-discussions search "announcement" --in title
+
+# Search with author filter
+gh-discussions search "help" --author username
+
+# Search with category filter
+gh-discussions search "question" --category General
+
+# Sort search results by comments
+gh-discussions search "popular" --sort comments --order desc
+
+# Limit search results
+gh-discussions search "recent" --limit 5
+
+# Output search results as JSON
+gh-discussions search "api" --format json
+```
+
+### Repository Statistics
+```bash
+# Show basic statistics for current/default repository
+gh-discussions stats
+
+# Show statistics for specific repository
+gh-discussions stats owner/repository
+
+# Show detailed statistics with recent activity
+gh-discussions stats --detailed
 ```
 
 ### Create Discussions
@@ -365,6 +433,45 @@ npm test github-client.test.ts
 ```
 
 
+## Command Reference
+
+### Available Commands
+
+| Command | Description | New in v1.1.0 |
+|---------|-------------|---------------|
+| `list [repo]` | List discussions in a repository | ✅ Enhanced with filters |
+| `show <number> [repo]` | Show discussion details and comments | |
+| `comment <number> <message> [repo]` | Add a comment to a discussion | |
+| `create [title] [body] [repo]` | Create a new discussion | |
+| `search <query> [repo]` | Search discussions by text | ✨ New |
+| `stats [repo]` | Show repository discussion statistics | ✨ New |
+| `config` | Configure authentication and settings | |
+
+### Command Options
+
+#### List Command
+- `--first <number>` - Number of discussions to fetch (default: 20)
+- `--category <name>` - Filter by category name ✨
+- `--author <username>` - Filter by author username ✨
+- `--has-comments` - Only show discussions with comments ✨
+- `--no-comments` - Only show discussions without comments ✨
+- `--sort <field>` - Sort by field (created, updated) ✨
+- `--order <direction>` - Sort order (asc, desc) ✨
+- `--format <format>` - Output format (table, json, markdown)
+
+#### Search Command ✨ New
+- `--in <fields>` - Search in specific fields (title, body, comments)
+- `--author <username>` - Filter by author
+- `--category <category>` - Filter by category
+- `--state <state>` - Filter by state (open, closed)
+- `--sort <field>` - Sort by field (created, updated, comments)
+- `--order <direction>` - Sort order (asc, desc)
+- `--limit <number>` - Maximum results to return
+- `--format <format>` - Output format (table, json, markdown)
+
+#### Stats Command ✨ New
+- `--detailed` - Show detailed statistics with recent activity
+
 ## API Documentation
 
 ### Core Classes
@@ -377,6 +484,9 @@ Handles secure storage and validation of GitHub tokens.
 
 #### ConfigManager
 Manages user configuration and preferences.
+
+#### EnhancedErrorHandler ✨ New
+Provides comprehensive error handling with retry logic and user-friendly messages.
 
 ## Error Handling
 
@@ -414,8 +524,12 @@ MIT License - see LICENSE file for details.
 - [x] Comment creation
 - [x] Discussion creation
 - [x] npm package publication
-- [ ] Discussion search and filtering
-- [ ] Reaction support
+- [x] Discussion search and filtering
+- [x] Repository statistics and analytics
+- [x] Enhanced error handling with retry logic
+- [x] GitHub Actions CI/CD
+- [ ] Reaction support (👍, ❤️, 🎉, etc.)
 - [ ] Markdown editing improvements
 - [ ] Configuration import/export
-- [ ] GitHub Actions CI/CD
+- [ ] Bulk operations
+- [ ] Discussion templates
