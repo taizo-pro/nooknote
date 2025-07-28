@@ -1,26 +1,19 @@
-# GitHub Discussions CLI & macOS App
+# GitHub Discussions CLI
 
-A powerful CLI tool and macOS application for interacting with GitHub Discussions without opening a browser. Perfect for developers who want to quickly access, read, and contribute to discussions while staying in their development environment.
+A powerful command-line tool for interacting with GitHub Discussions without opening a browser. Perfect for developers who want to quickly access, read, and contribute to discussions while staying in their terminal.
 
 ## Features
 
-### CLI Tool
 - 📋 List discussions in any repository
 - 👀 View discussion details and comments
 - 💬 Post comments to discussions
 - ✨ Create new discussions
 - ⚙️ Configurable settings and authentication
 - 🎨 Multiple output formats (table, JSON, markdown)
-
-### macOS App (Planned)
-- 🖥️ Native macOS interface using SwiftUI
-- 🔄 Shared configuration with CLI tool
-- 📱 Modern, intuitive user experience
-- 🚀 All CLI features in a native app
+- 🚀 Fast and lightweight CLI interface
+- 🔒 Secure token management
 
 ## Installation
-
-### CLI Tool
 
 #### Option 1: Direct Usage (Current Setup)
 Since the project is already built, you can use it directly:
@@ -371,9 +364,6 @@ npm run test -- --coverage
 npm test github-client.test.ts
 ```
 
-## macOS App Development
-
-The macOS app is built with SwiftUI and shares configuration with the CLI tool. See `macos-app/README.md` for development instructions.
 
 ## API Documentation
 
@@ -423,8 +413,9 @@ MIT License - see LICENSE file for details.
 - [x] Discussion listing and viewing
 - [x] Comment creation
 - [x] Discussion creation
-- [ ] macOS app implementation
+- [x] npm package publication
 - [ ] Discussion search and filtering
 - [ ] Reaction support
 - [ ] Markdown editing improvements
 - [ ] Configuration import/export
+- [ ] GitHub Actions CI/CD

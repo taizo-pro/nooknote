@@ -1,7 +1,7 @@
 {
   "name": "@taizo-pro/github-discussions-cli",
   "version": "1.0.0",
-  "description": "A powerful CLI tool for interacting with GitHub Discussions without opening a browser",
+  "description": "A powerful command-line tool for interacting with GitHub Discussions without opening a browser",
   "type": "module",
   "main": "dist/cli/index.js",
   "bin": {
@@ -23,10 +23,12 @@
     "discussions", 
     "cli",
     "command-line",
+    "terminal",
     "api",
     "graphql",
     "typescript",
-    "nodejs"
+    "nodejs",
+    "developer-tools"
   ],
   "author": {
     "name": "taizo-pro",

@@ -91,11 +91,5 @@ jspm_packages/
 # TernJS port file
 .tern-port
 
-# macOS app build artifacts
-macos-app/*.xcodeproj/project.xcworkspace/
-macos-app/*.xcodeproj/xcuserdata/
-macos-app/build/
-macos-app/DerivedData/
-
 # User configuration (contains sensitive tokens)
 .github-discussions/
