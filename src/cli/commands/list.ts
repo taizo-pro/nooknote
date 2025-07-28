@@ -11,6 +11,12 @@ export const listCommand = new Command('list')
   .argument('[repo]', 'Repository in owner/name format')
   .option('-f, --first <number>', 'Number of discussions to fetch', '20')
   .option('--format <format>', 'Output format (table, json, markdown)', 'table')
+  .option('--category <category>', 'Filter by category name')
+  .option('--author <username>', 'Filter by author username')
+  .option('--has-comments', 'Only show discussions with comments')
+  .option('--no-comments', 'Only show discussions without comments')
+  .option('--sort <field>', 'Sort by field (created,updated)', 'updated')
+  .option('--order <direction>', 'Sort order (asc,desc)', 'desc')
   .action(async (repo: string | undefined, options) => {
     const spinner = new Spinner();
     const context = { operation: 'list discussions', repository: repo };
@@ -46,15 +52,60 @@ export const listCommand = new Command('list')
       spinner.start(`Fetching discussions from ${targetRepo}...`);
 
       const client = new GitHubClient(token);
-      const discussions = await EnhancedErrorHandler.retryWithBackoff(
+      let discussions = await EnhancedErrorHandler.retryWithBackoff(
         () => client.listDiscussions(targetRepo, {
-          first: parseInt(options.first, 10),
-          orderBy: { field: 'UPDATED_AT', direction: 'DESC' },
+          first: parseInt(options.first, 10) * 2, // Get more to filter
+          orderBy: { 
+            field: options.sort === 'created' ? 'CREATED_AT' : 'UPDATED_AT', 
+            direction: options.order.toUpperCase() as 'ASC' | 'DESC'
+          },
         }),
         context
       );
 
-      spinner.succeed(`Found ${discussions.length} discussions`);
+      // Apply filters
+      if (options.category || options.author || options.hasComments || options.noComments) {
+        spinner.update('Applying filters...');
+        discussions = discussions.filter(discussion => {
+          // Category filter
+          if (options.category && 
+              discussion.category?.name.toLowerCase() !== options.category.toLowerCase()) {
+            return false;
+          }
+          
+          // Author filter
+          if (options.author && 
+              discussion.author.login.toLowerCase() !== options.author.toLowerCase()) {
+            return false;
+          }
+          
+          // Comments filter
+          if (options.hasComments && discussion.commentCount === 0) {
+            return false;
+          }
+          
+          if (options.noComments && discussion.commentCount > 0) {
+            return false;
+          }
+          
+          return true;
+        });
+
+        // Limit after filtering
+        const limit = parseInt(options.first, 10);
+        if (discussions.length > limit) {
+          discussions = discussions.slice(0, limit);
+        }
+      }
+
+      const filterText = [];
+      if (options.category) filterText.push(`category: ${options.category}`);
+      if (options.author) filterText.push(`author: ${options.author}`);
+      if (options.hasComments) filterText.push('with comments');
+      if (options.noComments) filterText.push('without comments');
+      
+      const filterSuffix = filterText.length > 0 ? ` (${filterText.join(', ')})` : '';
+      spinner.succeed(`Found ${discussions.length} discussions${filterSuffix}`);
 
       if (discussions.length === 0) {
         console.log(chalk.yellow('No discussions found in this repository.'));

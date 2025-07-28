@@ -11,8 +11,8 @@ export default {
       {
         useESM: true,
         tsconfig: {
-          module: 'ES2020',
-          target: 'ES2020',
+          module: 'ES2022',
+          target: 'ES2022',
         },
       },
     ],

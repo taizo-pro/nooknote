@@ -1,10 +1,10 @@
-import { jest } from '@jest/globals';
+import { jest, describe, beforeEach, it, expect } from '@jest/globals';
 import { GitHubClient } from '../core/github-client.js';
 
 // Mock the @octokit/graphql module
 jest.unstable_mockModule('@octokit/graphql', () => ({
   graphql: {
-    defaults: jest.fn(() => jest.fn()),
+    defaults: jest.fn(),
   },
 }));
 
@@ -12,15 +12,11 @@ describe('GitHubClient', () => {
   let client: GitHubClient;
   let mockGraphql: jest.Mock;
 
-  beforeEach(() => {
-    const { graphql } = require('@octokit/graphql');
+  beforeEach(async () => {
+    const { graphql } = await import('@octokit/graphql');
     mockGraphql = jest.fn();
-    graphql.defaults.mockReturnValue(mockGraphql);
+    (graphql.defaults as jest.Mock).mockReturnValue(mockGraphql);
     client = new GitHubClient('test-token');
-  });
-
-  afterEach(() => {
-    jest.clearAllMocks();
   });
 
   describe('listDiscussions', () => {
@@ -45,7 +41,7 @@ describe('GitHubClient', () => {
         },
       };
 
-      mockGraphql.mockResolvedValue(mockResponse);
+      (mockGraphql as any).mockResolvedValue(mockResponse);
 
       const result = await client.listDiscussions('test/repo');
 
@@ -68,7 +64,7 @@ describe('GitHubClient', () => {
         errors: [{ type: 'UNAUTHORIZED', message: 'Bad credentials' }],
       };
 
-      mockGraphql.mockRejectedValue(mockError);
+      (mockGraphql as any).mockRejectedValue(mockError);
 
       await expect(client.listDiscussions('test/repo')).rejects.toMatchObject({
         type: 'AUTHENTICATION_ERROR',
@@ -84,7 +80,7 @@ describe('GitHubClient', () => {
           discussion: {
             id: '1',
             title: 'Test Discussion',
-            body: 'Discussion body',
+            body: 'Test body',
             createdAt: '2023-01-01T00:00:00Z',
             updatedAt: '2023-01-02T00:00:00Z',
             url: 'https://github.com/test/repo/discussions/1',
@@ -92,14 +88,12 @@ describe('GitHubClient', () => {
             author: { login: 'testuser', avatarUrl: 'https://avatar.url' },
             category: { id: 'cat-1', name: 'General' },
             comments: {
-              totalCount: 1,
               nodes: [
                 {
                   id: 'comment-1',
                   body: 'Test comment',
-                  createdAt: '2023-01-03T00:00:00Z',
-                  url: 'https://github.com/test/repo/discussions/1#comment-1',
-                  author: { login: 'commenter', avatarUrl: null },
+                  createdAt: '2023-01-01T01:00:00Z',
+                  author: { login: 'commenter', avatarUrl: 'https://avatar2.url' },
                 },
               ],
             },
@@ -107,17 +101,24 @@ describe('GitHubClient', () => {
         },
       };
 
-      mockGraphql.mockResolvedValue(mockResponse);
+      (mockGraphql as any).mockResolvedValue(mockResponse);
 
       const result = await client.getDiscussion('test/repo', '1');
 
-      expect(result.title).toBe('Test Discussion');
-      expect(result.body).toBe('Discussion body');
+      expect(result).toMatchObject({
+        id: '1',
+        title: 'Test Discussion',
+        body: 'Test body',
+        author: { login: 'testuser', avatarUrl: 'https://avatar.url' },
+        category: { id: 'cat-1', name: 'General' },
+        url: 'https://github.com/test/repo/discussions/1',
+        locked: false,
+      });
       expect(result.comments).toHaveLength(1);
       expect(result.comments[0]).toMatchObject({
         id: 'comment-1',
         body: 'Test comment',
-        author: { login: 'commenter' },
+        author: { login: 'commenter', avatarUrl: 'https://avatar2.url' },
       });
     });
   });

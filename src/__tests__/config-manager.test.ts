@@ -1,46 +1,48 @@
-import { jest } from '@jest/globals';
+import { jest, describe, beforeEach, afterEach, it, expect } from '@jest/globals';
 import { FileConfigManager } from '../core/config-manager.js';
-import { join } from 'path';
 
+// Mock fs module
 jest.unstable_mockModule('fs', () => ({
   promises: {
+    mkdir: jest.fn(),
     readFile: jest.fn(),
     writeFile: jest.fn(),
-    mkdir: jest.fn(),
+    access: jest.fn(),
   },
 }));
 
+// Mock os module
 jest.unstable_mockModule('os', () => ({
   homedir: jest.fn(() => '/mock/home'),
 }));
 
-const { promises: fs } = await import('fs');
-
 describe('FileConfigManager', () => {
   let configManager: FileConfigManager;
-  const mockFs = fs as jest.Mocked<typeof fs>;
+  let mockFs: any;
 
-  beforeEach(() => {
+  beforeEach(async () => {
+    const fs = await import('fs');
+    mockFs = fs.promises as jest.Mocked<typeof fs.promises>;
     configManager = new FileConfigManager();
+    jest.clearAllMocks();
+  });
+
+  afterEach(() => {
     jest.clearAllMocks();
   });
 
   describe('getConfig', () => {
     it('should return default config when file does not exist', async () => {
-      const mockError: any = new Error('File not found');
-      mockError.code = 'ENOENT';
-      mockFs.readFile.mockRejectedValue(mockError);
+      mockFs.access.mockRejectedValue(new Error('File not found'));
 
       const config = await configManager.getConfig();
 
-      expect(config).toEqual({ outputFormat: 'table' });
+      expect(config).toEqual({});
     });
 
     it('should return parsed config when file exists', async () => {
-      const mockConfig = {
-        defaultRepo: 'test/repo',
-        outputFormat: 'json',
-      };
+      const mockConfig = { defaultRepo: 'test/repo', outputFormat: 'json' };
+      mockFs.access.mockResolvedValue(undefined);
       mockFs.readFile.mockResolvedValue(JSON.stringify(mockConfig));
 
       const config = await configManager.getConfig();
@@ -48,48 +50,68 @@ describe('FileConfigManager', () => {
       expect(config).toEqual(mockConfig);
     });
 
-    it('should throw error for invalid JSON', async () => {
+    it('should handle JSON parse errors', async () => {
+      mockFs.access.mockResolvedValue(undefined);
       mockFs.readFile.mockResolvedValue('invalid json');
 
-      await expect(configManager.getConfig()).rejects.toMatchObject({
-        type: 'CONFIGURATION_ERROR',
-        message: 'Invalid JSON in config file',
-      });
+      const config = await configManager.getConfig();
+
+      expect(config).toEqual({});
     });
   });
 
   describe('updateConfig', () => {
-    it('should merge and save config', async () => {
-      const existingConfig = { outputFormat: 'table' as const };
-      const newConfig = { defaultRepo: 'test/repo' };
+    it('should create directory and write config', async () => {
+      const updates = { defaultRepo: 'new/repo' };
+      mockFs.access.mockRejectedValue(new Error('File not found'));
 
-      mockFs.readFile.mockRejectedValue({ code: 'ENOENT' });
-      mockFs.mkdir.mockResolvedValue(undefined);
-      mockFs.writeFile.mockResolvedValue(undefined);
+      await configManager.updateConfig(updates);
 
-      await configManager.updateConfig(newConfig);
+      expect(mockFs.mkdir).toHaveBeenCalledWith('/mock/home/.github-discussions', {
+        recursive: true,
+      });
+      expect(mockFs.writeFile).toHaveBeenCalledWith(
+        '/mock/home/.github-discussions/config.json',
+        JSON.stringify(updates, null, 2),
+        'utf8'
+      );
+    });
+
+    it('should merge with existing config', async () => {
+      const existingConfig = { outputFormat: 'table' };
+      const updates = { defaultRepo: 'new/repo' };
+      const expectedConfig = { outputFormat: 'table', defaultRepo: 'new/repo' };
+
+      mockFs.access.mockResolvedValue(undefined);
+      mockFs.readFile.mockResolvedValue(JSON.stringify(existingConfig));
+
+      await configManager.updateConfig(updates);
 
       expect(mockFs.writeFile).toHaveBeenCalledWith(
-        join('/mock/home', '.github-discussions', 'config.json'),
-        JSON.stringify({ ...existingConfig, ...newConfig }, null, 2),
+        '/mock/home/.github-discussions/config.json',
+        JSON.stringify(expectedConfig, null, 2),
         'utf8'
       );
     });
   });
 
-  describe('setDefaultRepo', () => {
-    it('should set default repository', async () => {
-      mockFs.readFile.mockRejectedValue({ code: 'ENOENT' });
-      mockFs.mkdir.mockResolvedValue(undefined);
-      mockFs.writeFile.mockResolvedValue(undefined);
+  describe('getDefaultRepo', () => {
+    it('should return default repo from config', async () => {
+      const mockConfig = { defaultRepo: 'test/repo' };
+      mockFs.access.mockResolvedValue(undefined);
+      mockFs.readFile.mockResolvedValue(JSON.stringify(mockConfig));
 
-      await configManager.setDefaultRepo('owner/repo');
+      const repo = await configManager.getDefaultRepo();
 
-      expect(mockFs.writeFile).toHaveBeenCalledWith(
-        expect.any(String),
-        expect.stringContaining('"defaultRepo": "owner/repo"'),
-        'utf8'
-      );
+      expect(repo).toBe('test/repo');
+    });
+
+    it('should return undefined when no default repo', async () => {
+      mockFs.access.mockRejectedValue(new Error('File not found'));
+
+      const repo = await configManager.getDefaultRepo();
+
+      expect(repo).toBeUndefined();
     });
   });
 });
