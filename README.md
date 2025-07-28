@@ -57,11 +57,11 @@ npm link
 
 > **Note**: The `dist/` folder is automatically generated during build and is excluded from git via `.gitignore`.
 
-#### Option 4: Via npm (Future)
-Once published to npm registry:
+#### Option 4: Via npm (Recommended for Users)
+Install globally from npm registry:
 
 ```bash
-npm install -g github-discussions-cli
+npm install -g @taizo-pro/github-discussions-cli
 ```
 
 ## Quick Start

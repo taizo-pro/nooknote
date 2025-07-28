@@ -1,7 +1,7 @@
 {
-  "name": "github-discussions-cli",
+  "name": "@taizo-pro/github-discussions-cli",
   "version": "1.0.0",
-  "description": "CLI tool and macOS app for GitHub Discussions",
+  "description": "A powerful CLI tool for interacting with GitHub Discussions without opening a browser",
   "type": "module",
   "main": "dist/cli/index.js",
   "bin": {
@@ -18,9 +18,37 @@
     "prepublishOnly": "npm run build",
     "prepack": "npm run build"
   },
-  "keywords": ["github", "discussions", "cli", "macos"],
-  "author": "",
+  "keywords": [
+    "github",
+    "discussions", 
+    "cli",
+    "command-line",
+    "api",
+    "graphql",
+    "typescript",
+    "nodejs"
+  ],
+  "author": {
+    "name": "taizo-pro",
+    "url": "https://github.com/taizo-pro"
+  },
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/taizo-pro/nooknote.git"
+  },
+  "homepage": "https://github.com/taizo-pro/nooknote#readme",
+  "bugs": {
+    "url": "https://github.com/taizo-pro/nooknote/issues"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "files": [
+    "dist/**/*",
+    "README.md",
+    "LICENSE"
+  ],
   "dependencies": {
     "@octokit/graphql": "^7.0.2",
     "commander": "^11.1.0",
