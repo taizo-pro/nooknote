@@ -2,8 +2,9 @@ import { Command } from 'commander';
 import { table } from 'table';
 import chalk from 'chalk';
 import { GitHubClient, FileAuthManager, FileConfigManager } from '../../core/index.js';
-import { handleError } from '../utils/error-handler.js';
+import { EnhancedErrorHandler } from '../utils/enhanced-error-handler.js';
 import { formatDate } from '../utils/formatters.js';
+import { Spinner } from '../utils/spinner.js';
 
 export const listCommand = new Command('list')
   .description('List discussions in a repository')
@@ -11,19 +12,25 @@ export const listCommand = new Command('list')
   .option('-f, --first <number>', 'Number of discussions to fetch', '20')
   .option('--format <format>', 'Output format (table, json, markdown)', 'table')
   .action(async (repo: string | undefined, options) => {
+    const spinner = new Spinner();
+    const context = { operation: 'list discussions', repository: repo };
+
     try {
       const authManager = new FileAuthManager();
       const configManager = new FileConfigManager();
       
+      spinner.start('Checking authentication...');
       const token = await authManager.getToken();
       if (!token) {
+        spinner.fail('No GitHub token found');
         console.error(
           chalk.red(
-            'No GitHub token found. Run "gh-discussions config" to set up authentication.'
+            'Run "gh-discussions config" to set up authentication.'
           )
         );
         process.exit(1);
       }
+      spinner.succeed('Authentication verified');
 
       const targetRepo = repo || (await configManager.getDefaultRepo());
       if (!targetRepo) {
@@ -35,14 +42,22 @@ export const listCommand = new Command('list')
         process.exit(1);
       }
 
+      context.repository = targetRepo;
+      spinner.start(`Fetching discussions from ${targetRepo}...`);
+
       const client = new GitHubClient(token);
-      const discussions = await client.listDiscussions(targetRepo, {
-        first: parseInt(options.first, 10),
-        orderBy: { field: 'UPDATED_AT', direction: 'DESC' },
-      });
+      const discussions = await EnhancedErrorHandler.retryWithBackoff(
+        () => client.listDiscussions(targetRepo, {
+          first: parseInt(options.first, 10),
+          orderBy: { field: 'UPDATED_AT', direction: 'DESC' },
+        }),
+        context
+      );
+
+      spinner.succeed(`Found ${discussions.length} discussions`);
 
       if (discussions.length === 0) {
-        console.log(chalk.yellow('No discussions found.'));
+        console.log(chalk.yellow('No discussions found in this repository.'));
         return;
       }
 
@@ -59,7 +74,8 @@ export const listCommand = new Command('list')
           printTable(discussions);
       }
     } catch (error) {
-      handleError(error);
+      spinner.fail();
+      await EnhancedErrorHandler.handleError(error, context);
     }
   });
 

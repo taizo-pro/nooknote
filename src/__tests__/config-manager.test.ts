@@ -1,8 +1,8 @@
-import { FileConfigManager } from '../core/config-manager';
-import { promises as fs } from 'fs';
+import { jest } from '@jest/globals';
+import { FileConfigManager } from '../core/config-manager.js';
 import { join } from 'path';
 
-jest.mock('fs', () => ({
+jest.unstable_mockModule('fs', () => ({
   promises: {
     readFile: jest.fn(),
     writeFile: jest.fn(),
@@ -10,9 +10,11 @@ jest.mock('fs', () => ({
   },
 }));
 
-jest.mock('os', () => ({
+jest.unstable_mockModule('os', () => ({
   homedir: jest.fn(() => '/mock/home'),
 }));
+
+const { promises: fs } = await import('fs');
 
 describe('FileConfigManager', () => {
   let configManager: FileConfigManager;

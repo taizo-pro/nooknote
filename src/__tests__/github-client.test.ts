@@ -1,7 +1,8 @@
-import { GitHubClient } from '../core/github-client';
+import { jest } from '@jest/globals';
+import { GitHubClient } from '../core/github-client.js';
 
 // Mock the @octokit/graphql module
-jest.mock('@octokit/graphql', () => ({
+jest.unstable_mockModule('@octokit/graphql', () => ({
   graphql: {
     defaults: jest.fn(() => jest.fn()),
   },
