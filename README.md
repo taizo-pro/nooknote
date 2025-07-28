@@ -108,14 +108,38 @@ Before using the CLI, you need to create a GitHub Personal Access Token with the
    - Click **Generate new token** → **Generate new token (classic)**
    - Give your token a descriptive name (e.g., "GitHub Discussions CLI")
    - Set expiration (recommended: 90 days or custom)
-   - Select the following scopes:
-     - ✅ **repo** (Full control of private repositories)
-       - This includes access to discussions in private repos
-     - ✅ **public_repo** (Access public repositories) 
-       - For discussions in public repos
+   - **Select the following scopes** (⚠️ Important - choose based on your needs):
+
+   **For Private Repositories:**
+   - ✅ **repo** (Full control of private repositories)
+   - This single scope provides access to discussions in private repositories
+
+   **For Public Repositories Only:**
+   - ✅ **public_repo** (Access public repositories)
+   - This is sufficient if you only work with public repository discussions
+
+   **Additional Recommended Scopes:**
+   - ✅ **read:user** (Read user profile data) - For displaying author information
+   - ✅ **user:email** (Access user email) - For proper attribution
+
+   ⚠️ **Security Note**: Only select `repo` if you need private repository access, as it grants broad permissions.
+
    - Click **Generate token**
 
-5. **Copy Your Token**
+5. **Alternative: Fine-grained Personal Access Tokens (Beta)**
+   If you prefer more granular control, you can use fine-grained tokens:
+   
+   - Click **Generate new token** → **Generate new token (beta)**
+   - **Resource owner**: Select your account or organization
+   - **Repository access**: Choose specific repositories or "All repositories"
+   - **Repository permissions**:
+     - ✅ **Discussions**: Read and write
+     - ✅ **Metadata**: Read (required)
+     - ✅ **Contents** (if creating discussions with file references): Read
+   
+   📝 **Note**: Fine-grained tokens are currently in beta and may have limitations.
+
+6. **Copy Your Token**
    - **⚠️ Important**: Copy the token immediately - you won't be able to see it again
    - Store it securely (you'll need it in the next step)
 
@@ -150,12 +174,55 @@ gh-discussions list owner/repository
 
 ### Troubleshooting Token Issues
 
-If you encounter authentication errors:
+#### Common Error Messages and Solutions:
 
-- **Invalid token**: Verify the token was copied correctly
-- **Insufficient permissions**: Ensure you selected the `repo` scope
-- **Token expired**: Create a new token if the old one expired
-- **Private repo access**: The `repo` scope is required for private repositories
+**❌ "Bad credentials" / "Invalid token"**
+- Double-check that you copied the token correctly (no extra spaces)
+- Ensure the token hasn't expired
+- Try generating a new token
+
+**❌ "Resource not accessible by integration"**
+- For **private repositories**: You need the `repo` scope (classic tokens)
+- For **public repositories**: `public_repo` scope is sufficient
+- For **fine-grained tokens**: Ensure "Discussions" permission is set to "Read and write"
+
+**❌ "Not Found" errors**
+- Verify the repository exists and you have access to it
+- Check that Discussions are enabled in the repository settings
+- Ensure your token has access to the specific repository (for fine-grained tokens)
+
+**❌ "API rate limit exceeded"**
+- Wait for the rate limit to reset (usually 1 hour)
+- Authenticated requests have higher rate limits than anonymous ones
+
+#### Permission Requirements by Action:
+
+| Action | Classic Token Scope | Fine-grained Permission |
+|--------|--------------------|-----------------------|
+| List discussions | `public_repo` (public) / `repo` (private) | Discussions: Read |
+| View discussion details | `public_repo` (public) / `repo` (private) | Discussions: Read |
+| Create comments | `public_repo` (public) / `repo` (private) | Discussions: Write |
+| Create discussions | `public_repo` (public) / `repo` (private) | Discussions: Write |
+
+#### Quick Setup Guide:
+
+**🎯 Most Common Setup (Public + Private repos):**
+```
+✅ repo (Full control of private repositories)
+```
+
+**🎯 Public Repositories Only:**
+```
+✅ public_repo (Access public repositories)
+✅ read:user (Read user profile data)
+```
+
+**🎯 Fine-grained Token (Recommended for specific repos):**
+```
+Repository permissions:
+✅ Discussions: Read and write
+✅ Metadata: Read
+```
 
 ### Security Best Practices
 
@@ -163,6 +230,8 @@ If you encounter authentication errors:
 - **Use the minimum required scopes** for your use case
 - **Set reasonable expiration dates** and rotate tokens regularly
 - **Revoke unused tokens** from GitHub settings
+- **Use fine-grained tokens** when possible for better security
+- **Test with public repositories first** before granting private repo access
 
 ## Usage
 
