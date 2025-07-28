@@ -360,8 +360,8 @@ For developers who want to contribute to this project:
 
 ### Setup for Development
 ```bash
-git clone https://github.com/taizo-pro/nooknote.git
-cd nooknote
+git clone https://github.com/taizo-pro/github-discussions-cli.git
+cd github-discussions-cli
 npm install
 ```
 
