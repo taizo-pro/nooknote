@@ -408,29 +408,29 @@ npm test github-client.test.ts
 
 ### Available Commands
 
-| Command | Description | New in v1.1.0 |
-|---------|-------------|---------------|
-| `list [repo]` | List discussions in a repository | ✅ Enhanced with filters |
-| `show <number> [repo]` | Show discussion details and comments | |
-| `comment <number> <message> [repo]` | Add a comment to a discussion | |
-| `create [title] [body] [repo]` | Create a new discussion | |
-| `search <query> [repo]` | Search discussions by text | ✨ New |
-| `stats [repo]` | Show repository discussion statistics | ✨ New |
-| `config` | Configure authentication and settings | |
+| Command | Description | Features |
+|---------|-------------|----------|
+| `list [repo]` | List discussions in a repository | Enhanced with filters (v1.1.0) |
+| `show <number> [repo]` | Show discussion details and comments | Core feature |
+| `comment <number> <message> [repo]` | Add a comment to a discussion | Core feature |
+| `create [title] [body] [repo]` | Create a new discussion | Core feature |
+| `search <query> [repo]` | Search discussions by text | Added in v1.1.0 |
+| `stats [repo]` | Show repository discussion statistics | Added in v1.1.0 |
+| `config` | Configure authentication and settings | Core feature |
 
 ### Command Options
 
 #### List Command
 - `--first <number>` - Number of discussions to fetch (default: 20)
-- `--category <name>` - Filter by category name ✨
-- `--author <username>` - Filter by author username ✨
-- `--has-comments` - Only show discussions with comments ✨
-- `--no-comments` - Only show discussions without comments ✨
-- `--sort <field>` - Sort by field (created, updated) ✨
-- `--order <direction>` - Sort order (asc, desc) ✨
+- `--category <name>` - Filter by category name
+- `--author <username>` - Filter by author username
+- `--has-comments` - Only show discussions with comments
+- `--no-comments` - Only show discussions without comments
+- `--sort <field>` - Sort by field (created, updated)
+- `--order <direction>` - Sort order (asc, desc)
 - `--format <format>` - Output format (table, json, markdown)
 
-#### Search Command ✨ New
+#### Search Command
 - `--in <fields>` - Search in specific fields (title, body, comments)
 - `--author <username>` - Filter by author
 - `--category <category>` - Filter by category
@@ -440,7 +440,7 @@ npm test github-client.test.ts
 - `--limit <number>` - Maximum results to return
 - `--format <format>` - Output format (table, json, markdown)
 
-#### Stats Command ✨ New
+#### Stats Command
 - `--detailed` - Show detailed statistics with recent activity
 
 ## API Documentation
@@ -456,7 +456,7 @@ Handles secure storage and validation of GitHub tokens.
 #### ConfigManager
 Manages user configuration and preferences.
 
-#### EnhancedErrorHandler ✨ New
+#### EnhancedErrorHandler
 Provides comprehensive error handling with retry logic and user-friendly messages.
 
 ## Error Handling
