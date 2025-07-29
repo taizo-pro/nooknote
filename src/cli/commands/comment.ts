@@ -3,6 +3,7 @@ import chalk from 'chalk';
 import inquirer from 'inquirer';
 import { GitHubClient, FileAuthManager, FileConfigManager } from '../../core/index.js';
 import { handleError } from '../utils/error-handler.js';
+import { Spinner } from '../utils/spinner.js';
 
 export const commentCommand = new Command('comment')
   .description('Add a comment to a discussion')
@@ -11,6 +12,7 @@ export const commentCommand = new Command('comment')
   .argument('[repo]', 'Repository in owner/name format')
   .option('-e, --editor', 'Open editor for comment input')
   .action(async (discussionId: string, message: string | undefined, repo: string | undefined, options) => {
+    const spinner = new Spinner();
     try {
       const authManager = new FileAuthManager();
       const configManager = new FileConfigManager();
@@ -57,15 +59,19 @@ export const commentCommand = new Command('comment')
       const client = new GitHubClient(token);
       
       // First, get the discussion to retrieve the actual discussion ID
+      spinner.start(`Fetching discussion #${discussionId} from ${targetRepo}...`);
       const discussion = await client.getDiscussion(targetRepo, discussionId);
+      
+      spinner.update('Posting comment...');
       const comment = await client.createComment(targetRepo, discussion.id, commentBody.trim());
 
-      console.log(chalk.green('✓ Comment posted successfully!'));
+      spinner.succeed('Comment posted successfully!');
       console.log(chalk.gray(`URL: ${comment.url}`));
       console.log();
       console.log(chalk.bold('Your comment:'));
       console.log(comment.body);
     } catch (error) {
+      spinner.fail();
       handleError(error);
     }
   });
